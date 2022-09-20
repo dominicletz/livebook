@@ -65,7 +65,13 @@ defmodule Livebook.SystemResources do
   end
 
   defp measure() do
-    memory_data = :memsup.get_system_memory_data()
+    memory_data =
+      if Livebook.Application.is_mobile?() do
+        Livebook.MobileBridge.get_system_memory_data()
+      else
+        :memsup.get_system_memory_data()
+      end
+
     free_memory = free_memory(Map.new(memory_data))
     memory = %{total: memory_data[:total_memory] || 1, free: free_memory}
     :ets.insert(@name, {:memory, memory})

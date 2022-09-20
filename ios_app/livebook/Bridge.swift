@@ -64,6 +64,7 @@ class Bridge {
         let rel = versions.components(separatedBy: .whitespaces)[1]
         setEnv(name: "RELEASE_SYS_CONFIG", value: appdir.appendingPathComponent("releases/\(rel)/sys").path)
         setEnv(name: "RELEASE_ROOT", value: appdir.path)
+        setEnv(name: "LIVEBOOK_DEFAULT_RUNTIME", value: "embedded")
 
         let inet_rc = appdir.appendingPathComponent("inetrc")
         setEnv(name: "ERL_INETRC", value: inet_rc.path)
@@ -227,6 +228,19 @@ class ServerConnection {
                 var response = ref
                 if (method == ":getOsDescription") {
                     response.append(self.dataToList(string: "iOS \(UIDevice().model)"))
+                } else if (method == ":get_system_memory_data"){
+                    response.append("""
+                    [
+                        {":_type": ":tuple", ":value": ["total_memory", 1000000000]},
+                        {":_type": ":tuple", ":value": ["available_memory", 1000000000]},
+                        {":_type": ":tuple", ":value": ["free_memory", 1000000000]},
+                        {":_type": ":tuple", ":value": ["system_total_memory", 1000000000]},
+                        {":_type": ":tuple", ":value": ["buffered_memory", 1000000000]},
+                        {":_type": ":tuple", ":value": ["cached_memory", 1000000000]},
+                        {":_type": ":tuple", ":value": ["total_swap", 1000000000]},
+                        {":_type": ":tuple", ":value": ["free_swap", 1000000000]}
+                    ]
+                    """.data(using: .utf8)!)
                 } else if (method == ":getCanonicalName") {
                     response.append(self.dataToList(string: "en_en"))
                 } else {

@@ -6,7 +6,12 @@ defmodule Livebook.Application do
   def start(_type, _args) do
     ensure_directories!()
     set_local_filesystem!()
-    bootstrap()
+
+    if not is_mobile?() do
+      ensure_distribution!()
+      validate_hostname_resolution!()
+      set_cookie()
+    end
 
     children =
       [
@@ -55,13 +60,9 @@ defmodule Livebook.Application do
   end
 
   if Mix.target() == :ios do
-    defp bootstrap(), do: :nothing
+    def is_mobile?(), do: true
   else
-    defp bootstrap() do
-      ensure_distribution!()
-      validate_hostname_resolution!()
-      set_cookie()
-    end
+    def is_mobile?(), do: false
   end
 
   # Tell Phoenix to update the endpoint configuration
@@ -169,7 +170,10 @@ defmodule Livebook.Application do
   defp display_startup_info() do
     if Phoenix.Endpoint.server?(:livebook, LivebookWeb.Endpoint) do
       IO.puts("[Livebook] Application running at #{LivebookWeb.Endpoint.access_url()}")
-      Livebook.MobileBridge.show_url(LivebookWeb.Endpoint.access_url())
+
+      if is_mobile?() do
+        Livebook.MobileBridge.show_url(LivebookWeb.Endpoint.access_url())
+      end
     end
   end
 

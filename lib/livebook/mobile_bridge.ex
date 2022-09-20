@@ -38,6 +38,10 @@ defmodule Livebook.MobileBridge do
     cast(:webview, :loadURL, [url])
   end
 
+  def get_system_memory_data() do
+    call(:memsup, :get_system_memory_data, [])
+  end
+
   @impl true
   def init([]) do
     socket =
@@ -65,7 +69,6 @@ defmodule Livebook.MobileBridge do
     Logger.info("bridge_cast: #{module}.#{method}(#{inspect(args)})")
     ref = System.unique_integer([:positive]) + 10
     json = encode!([module, method, args ++ [self()]])
-
     GenServer.cast(ensure_bridge(), {:bridge_call, ref, json})
   end
 

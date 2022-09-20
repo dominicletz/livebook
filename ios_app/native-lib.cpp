@@ -100,7 +100,7 @@ const char* startErlang(std::string root_dir, std::string log_dir, const char *a
             "--",
             "--",
             "-extra",
-            "--no-halt",
+            "--no-halt"
     };
 
     erl_start(sizeof(args) / sizeof(args[0]), (char **)args);
